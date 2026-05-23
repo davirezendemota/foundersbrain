@@ -1,0 +1,89 @@
+# Template: PR Review Assistant
+# Trigger: On pull request (with filters)
+# Output: Claude reviews PRs and adds automated feedback
+
+name: pr-review-assistant
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'src/**'
+      - 'ai/**'
+      - 'docs/**'
+
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      pull-requests: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get PR diff
+        id: diff
+        run: |
+          # Get the base commit
+          BASE_REF="${{ github.base_ref }}"
+          HEAD_REF="${{ github.head_ref }}"
+
+          # Generate diff
+          git fetch origin $BASE_REF
+          DIFF=$(git diff origin/$BASE_REF..HEAD -- src/ ai/ docs/ | head -5000)
+
+          echo "diff<<EOF" >> $GITHUB_OUTPUT
+          echo "$DIFF" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          # File count
+          FILES=$(git diff --name-only origin/$BASE_REF..HEAD | wc -l)
+          ADDITIONS=$(git diff --stat origin/$BASE_REF..HEAD | tail -1 | awk '{print $4}')
+
+          echo "files=$FILES" >> $GITHUB_OUTPUT
+          echo "additions=$ADDITIONS" >> $GITHUB_OUTPUT
+
+      - name: Analyze with Claude
+        id: analysis
+        run: |
+          cat <<'EOF' | claude
+          Review this pull request and provide constructive feedback:
+
+          **PR Title:** ${{ github.event.pull_request.title }}
+          **Author:** ${{ github.event.pull_request.user.login }}
+          **Files Changed:** ${{ steps.diff.outputs.files }}
+          **Lines Added:** ${{ steps.diff.outputs.additions }}
+
+          **Diff:**
+          ```
+          ${{ steps.diff.outputs.diff }}
+          ```
+
+          Please analyze and provide:
+          1. Code quality observations (patterns, potential issues)
+          2. Architecture/design considerations
+          3. Testing coverage assessment
+          4. Documentation and comments evaluation
+          5. Security or performance concerns (if any)
+          6. Specific suggestions for improvement
+
+          Format as a concise GitHub PR comment (markdown).
+          EOF
+
+      - name: Post comment on PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🤖 **Automated Review by Claude**\n\n[Review output from Claude]\n\n---\n_Generated at ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}_`
+            })

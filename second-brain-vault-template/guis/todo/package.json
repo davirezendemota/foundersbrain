@@ -1,0 +1,16 @@
+{
+  "name": "todo-gui",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+"start": "bun todo_gui.tsx"
+  },
+  "dependencies": {
+    "ink": "^4",
+    "ink-text-input": "^6",
+    "react": "^18"
+  },
+  "devDependencies": {
+    "@types/react": "^18"
+  }
+}

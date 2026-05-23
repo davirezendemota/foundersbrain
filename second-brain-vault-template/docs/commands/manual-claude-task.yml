@@ -1,0 +1,118 @@
+# Template: Manual Claude Task
+# Trigger: Workflow dispatch (manual button in GitHub UI)
+# Output: Run any Claude prompt on demand with custom inputs
+
+name: manual-claude-task
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_description:
+        description: 'Task or prompt for Claude'
+        required: true
+        type: string
+      context_scope:
+        description: 'What context to include'
+        required: false
+        type: choice
+        options:
+          - none
+          - recent-commits
+          - all-changes
+          - full-repo
+        default: 'none'
+      output_format:
+        description: 'Output format'
+        required: false
+        type: choice
+        options:
+          - markdown
+          - json
+          - plain-text
+        default: 'markdown'
+
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Prepare context
+        id: context
+        run: |
+          SCOPE="${{ github.event.inputs.context_scope }}"
+
+          case $SCOPE in
+            recent-commits)
+              CONTEXT=$(git log --oneline -20)
+              ;;
+            all-changes)
+              CONTEXT=$(git diff --stat HEAD~7...HEAD)
+              ;;
+            full-repo)
+              CONTEXT=$(find . -type f -name "*.md" -o -name "*.json" | head -50)
+              ;;
+            *)
+              CONTEXT="(no additional context)"
+              ;;
+          esac
+
+          echo "context<<EOF" >> $GITHUB_OUTPUT
+          echo "$CONTEXT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Execute Claude task
+        id: result
+        run: |
+          FORMAT="${{ github.event.inputs.output_format }}"
+
+          cat <<'EOF' | claude
+          Execute this task and respond in $FORMAT format:
+
+          **Task:** ${{ github.event.inputs.task_description }}
+
+          **Repository:** ${{ github.repository }}
+          **Triggered by:** ${{ github.actor }}
+          **Timestamp:** ${{ github.event.repository.updated_at }}
+
+          **Context:**
+          ```
+          ${{ steps.context.outputs.context }}
+          ```
+
+          Please complete the task and provide a structured response.
+          EOF
+
+      - name: Save results
+        run: |
+          mkdir -p ./workflow-outputs
+          echo "Task completed at $(date)" > ./workflow-outputs/execution-log.txt
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: task-output
+          path: ./workflow-outputs/
+          retention-days: 7
+
+      - name: Post summary
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const runUrl = `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
+
+            github.rest.actions.createWorkflowRunComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+              body: `✅ Task execution completed\n\nTask: \`${{ github.event.inputs.task_description }}\`\n\n[View full run](${runUrl})`
+            });

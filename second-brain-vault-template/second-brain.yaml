@@ -1,0 +1,105 @@
+# second-brain.yaml
+# Mapeamento de volumes do projeto second-brain
+# Fonte de verdade para localização de todos os dados persistentes
+
+version: "1.0"
+project: second-brain
+
+# ---------------------------------------------------------------------------
+# VOLUMES (nomeados — estilo Docker)
+# Cada volume tem um nome único que serve de identificador.
+# O campo `path` define onde os dados ficam fisicamente no disco.
+# Não versionados (.gitignore) — dados locais, privados e potencialmente pesados.
+# ---------------------------------------------------------------------------
+
+volumes:
+
+  agents:
+    path: volumes/agents/
+    description: Conteúdo, estratégias e dados gerados por agentes IA
+    convention: volumes/agents/{agent-name}/
+    known: {}  # registrar aqui conforme agentes forem criados
+
+  attachments:
+    path: volumes/attachments/
+    description: Arquivos fornecidos pelo usuário como input para os agentes
+    types:
+      images:
+        path: volumes/attachments/images/
+        formats: [png, jpg, jpeg, gif, webp, svg]
+        description: Imagens enviadas pelo usuário
+      documents:
+        path: volumes/attachments/documents/
+        formats: [pdf, doc, docx, txt, md, csv, xlsx]
+        description: Documentos, relatórios e planilhas enviados pelo usuário
+
+  databases:
+    path: volumes/databases/
+    description: Bancos de dados SQLite para automações e estado persistente
+    convention: volumes/databases/{name}.db
+    known: {}  # registrar aqui conforme bancos forem criados
+
+  financial:
+    path: volumes/financial/
+    description: Documentos financeiros, faturas e extratos bancários
+    types:
+      faturas:
+        path: volumes/financial/faturas/
+        convention: volumes/financial/faturas/{year}/{month}/
+        description: Faturas e extratos mensais dos bancos
+
+# ---------------------------------------------------------------------------
+# LINKS (symlinks)
+# Formato: nome_do_volume:pasta_no_projeto
+# Resolve: ln -s <volumes[name].path> <link>
+# Executar: bash scripts/os/mount-volumes.sh
+# ---------------------------------------------------------------------------
+
+links:
+  - agents:agents/
+  - attachments:attachments/
+  - databases:db/
+  - financial:financial/
+
+# ---------------------------------------------------------------------------
+# MEMÓRIA DE AGENTES
+# Distinta dos volumes — versionada no git (ai/agents/data/)
+# ---------------------------------------------------------------------------
+
+agent_memory:
+  path: ai/agents/data/
+  description: Memória persistente dos agentes (versionada no git)
+  convention: ai/agents/data/{agent-name}.md
+  note: >
+    Memória != Output. Memória é contexto leve (aprendizados, preferências,
+    histórico de decisões). Outputs e dados gerados vão no volume `agents`.
+
+# ---------------------------------------------------------------------------
+# SCRIPTS — volumes de saída padrão
+# ---------------------------------------------------------------------------
+
+scripts:
+  apify:
+    volume: agents
+    description: Dados extraídos por scrapers Apify
+  discord:
+    volume: null
+    description: Script de envio — não gera arquivos
+  github:
+    volume: null
+    description: Script de issues — não gera arquivos locais
+
+# ---------------------------------------------------------------------------
+# GIT
+# ---------------------------------------------------------------------------
+
+git:
+  ignored:
+    - volumes/        # dados locais, privados, potencialmente pesados
+    - .claude/        # config local do Claude Code
+    - .cursor/        # config local do Cursor (gerado a partir de ai/)
+  versioned:
+    - ai/             # definições de agentes, regras, comandos
+    - docs/           # documentação e referências
+    - scripts/        # scripts de automação (exceto venv e .env)
+    - projects/       # outputs leves que merecem histórico

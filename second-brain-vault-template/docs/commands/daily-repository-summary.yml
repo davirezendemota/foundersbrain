@@ -1,0 +1,83 @@
+# Template: Daily repository summary
+# Trigger: Every day at 9 AM UTC
+# Output: Summarizes commits, changes, and suggests next steps
+
+name: daily-repository-summary
+
+on:
+  schedule:
+    - cron: '0 9 * * 1-5'  # 9 AM UTC, weekdays only
+  workflow_dispatch:
+
+env:
+  ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+jobs:
+  summary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gather repository data
+        id: repo_data
+        run: |
+          # Last 24 hours of commits
+          COMMITS=$(git log --oneline --since="24 hours ago" 2>/dev/null | head -20 || echo "No commits in last 24 hours")
+
+          # Changed files in last week
+          FILES=$(git diff --name-only HEAD~7...HEAD 2>/dev/null | head -30 || echo "No files changed")
+
+          # Branch info
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          TOTAL_BRANCHES=$(git branch -a | wc -l)
+
+          # Save to env for Claude
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "branch=$CURRENT_BRANCH" >> $GITHUB_OUTPUT
+          echo "total_branches=$TOTAL_BRANCHES" >> $GITHUB_OUTPUT
+
+      - name: Generate summary with Claude
+        env:
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_REF: ${{ github.ref }}
+        run: |
+          cat <<'EOF' | claude
+          Analyze this repository activity and provide a concise daily summary:
+
+          **Repository:** ${{ env.GITHUB_REPO }}
+          **Current Branch:** ${{ steps.repo_data.outputs.branch }}
+          **Total Branches:** ${{ steps.repo_data.outputs.total_branches }}
+
+          **Recent Commits (last 24h):**
+          ```
+          ${{ steps.repo_data.outputs.commits }}
+          ```
+
+          **Changed Files (last 7 days):**
+          ```
+          ${{ steps.repo_data.outputs.files }}
+          ```
+
+          Please provide:
+          1. Summary of the day's work (2-3 sentences)
+          2. Key files or systems affected
+          3. Potential issues or tech debt identified
+          4. Recommended next steps
+
+          Format as markdown suitable for a GitHub comment.
+          EOF
+
+      - name: Save output
+        run: |
+          echo "Summary generated at $(date)" > summary.txt

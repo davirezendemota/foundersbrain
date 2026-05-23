@@ -1,0 +1,33 @@
+projects/local/
+volumes/
+.DS_Store
+# Ambiente local do bootstrap (caminho do repo, PATH da app Cursor)
+scripts/os/.env
+
+# Sandboxes e scripts gerados pelos utilizadores dedicados aos agent CLIs
+.agent-homes/
+scripts/os/agent-users/.generated/
+
+guis/*/node_modules/
+guis/*/bun.lock
+guis/*/dist/
+guis/*/build/
+guis/*/*.tsbuildinfo
+.claude/
+.cursor/
+CLAUDE.md
+
+# Obsidian — estado de UI e arquivos de máquina
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/graph.json
+
+# Obsidian — código de plugins (baixado automaticamente pelo marketplace)
+.obsidian/plugins/*/main.js
+.obsidian/plugins/*/styles.css
+
+# Workspaces — repositórios clonados localmente
+workspaces/*/repositories/
+
+# Binário compilado do CLI
+/sb
