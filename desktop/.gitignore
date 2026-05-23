@@ -1,0 +1,12 @@
+# Build
+dist/
+node_modules/
+
+# Tauri
+src-tauri/target/
+src-tauri/WixTools/
+
+# Env
+.env
+.env*.local
+scripts/.env

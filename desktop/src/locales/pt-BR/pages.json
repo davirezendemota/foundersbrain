@@ -1,0 +1,72 @@
+{
+  "home": {
+    "title": "The Solo Founder"
+  },
+  "vault": {
+    "loading": "Carregando vault...",
+    "selectTitle": "Selecione seu vault",
+    "selectDescription": "Escolha a pasta do vault Second Brain. Suas credenciais de IA ficam criptografadas em .second-brain/ dentro do vault.",
+    "selectButton": "Escolher pasta do vault",
+    "activeLabel": "Vault ativo",
+    "changeButton": "Trocar",
+    "apiKeyTitle": "Configure a API de IA",
+    "apiKeyDescription": "O chat fica bloqueado ate voce salvar uma API key. Ela e armazenada criptografada em .second-brain/ neste vault.",
+    "apiProviderLabel": "Provedor",
+    "apiKeyLabel": "API key",
+    "apiKeyPlaceholder": "Cole sua chave aqui",
+    "apiKeySave": "Salvar e desbloquear chat",
+    "apiKeySaving": "Salvando...",
+    "chatBlockedPlaceholder": "Configure a API key do vault para enviar mensagens"
+  },
+  "workspace": {
+    "presence": {
+      "senseMemory": "Memoria",
+      "senseFiles": "Arquivos",
+      "senseWeb": "Web"
+    },
+    "controls": {
+      "soundOn": "Ativar voz da IA",
+      "soundOff": "Silenciar voz da IA",
+      "historyOn": "Mostrar historico de falas da IA",
+      "historyOff": "Ocultar historico de falas da IA",
+      "micOn": "Ativar microfone",
+      "micOff": "Silenciar microfone"
+    },
+    "caption": {
+      "label": "Legenda da fala da IA",
+      "historyLabel": "Historico de falas anteriores da IA",
+      "historyEmpty": "Ainda nao ha legendas anteriores.",
+      "error": "Nao consegui falar com o modelo agora. Confira se o backend esta online e se a chave da OpenAI esta configurada.",
+      "voiceUnavailable": "Seu navegador nao liberou reconhecimento de voz nesta sessao. Use o composer de texto ou teste em um navegador com Web Speech API.",
+      "voiceError": "Nao consegui capturar sua voz agora. Confira a permissao do microfone e tente novamente.",
+      "next": "Proximo",
+      "replyPageOne": "Recebi seu pedido. Vou manter a fala aqui na esquerda e colocar qualquer artefato util na mesa a direita.",
+      "replyPageTwo": "No produto final, esse fluxo sera conectado ao streaming real e aos eventos honestos do backend."
+    },
+    "chat": {
+      "you": "Voce",
+      "now": "Agora"
+    },
+    "artifacts": {
+      "listen": "Ouvir explicacao",
+      "download": "Baixar arquivo",
+      "generatedTitle": "Artefato de exemplo",
+      "generatedBody": "Este card representa o lugar onde entram codigo, links, arquivos, tabelas e graficos gerados pela IA.",
+      "generatedMeta": "Link gerado pela IA"
+    },
+    "composer": {
+      "placeholder": "Escreva uma decisao, pergunta ou pedido. Enter envia; Shift+Enter quebra linha.",
+      "attach": "Anexar",
+      "hint": "Use @ para mencionar artefatos da IA.",
+      "send": "Enviar"
+    }
+  },
+  "contentLibrary": {
+    "placeholder": "Cole o link de um post (YouTube, TikTok, Instagram, X...)",
+    "add": "Adicionar",
+    "empty": "Nenhum link salvo ainda. Cole uma URL acima para comecar.",
+    "fetchError": "Nao foi possivel carregar os links salvos.",
+    "addError": "Nao foi possivel adicionar o link. Verifique a URL e tente novamente.",
+    "deleteError": "Nao foi possivel remover o item."
+  }
+}
