@@ -1,0 +1,14 @@
+[package]
+name = "sb"
+version = "0.1.14"
+edition = "2021"
+
+[[bin]]
+name = "sb"
+path = "src/main.rs"
+
+[dependencies]
+chrono = { version = "0.4", features = ["clock"] }
+
+[dev-dependencies]
+tempfile = "3"
