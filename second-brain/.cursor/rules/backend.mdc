@@ -1,0 +1,137 @@
+---
+title: Regras do Backend
+description: Padrões e convenções para desenvolvimento backend
+tags: [backend, fastapi, python, sqlmodel]
+paths: ["backend/**"]
+---
+
+# Regras do Backend (FastAPI)
+
+## Arquitetura em Camadas
+
+### 1. Models (`backend/models/`)
+- Todos os modelos herdam de `BaseModel`
+- `BaseModel` fornece: `id`, `created_at`, `updated_at`, `deleted_at`
+- Soft delete implementado automaticamente
+- Usar SQLModel para definição
+
+```python
+from sqlmodel import Field
+from core.BaseModel import BaseModel
+
+class Example(BaseModel, table=True):
+    name: str = Field(max_length=255, nullable=False)
+    description: str | None = Field(default=None)
+```
+
+### 2. DTOs (`backend/dtos/`)
+- Validação de entrada/saída com Pydantic
+- Separar Create, Update e Response
+- Usar `from_attributes = True` para Response
+
+```python
+from pydantic import BaseModel
+
+class ExampleCreate(BaseModel):
+    name: str
+    description: str | None = None
+
+class ExampleResponse(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    # ...
+    class Config:
+        from_attributes = True
+```
+
+### 3. Repositories (`backend/repositories/`)
+- Herdar de `BaseRepository`
+- Implementar métodos específicos quando necessário
+- Sempre filtrar registros deletados (soft delete)
+
+```python
+from sqlmodel import Session
+from models.example import Example
+from core.BaseRepository import BaseRepository
+
+class ExampleRepository(BaseRepository[Example]):
+    def __init__(self, session: Session):
+        super().__init__(Example, session)
+```
+
+### 4. Services (`backend/services/`)
+- Lógica de negócio isolada
+- Usar Dependency Injection do FastAPI
+- Retornar modelos ou DTOs
+- Não acessar banco diretamente, usar repositories
+
+```python
+from fastapi import Depends
+from sqlmodel import Session
+from repositories.example_repository import ExampleRepository
+from database.engine import get_session
+
+class ExampleService:
+    def __init__(self, session: Session = Depends(get_session)):
+        self.repo = ExampleRepository(session)
+        self.session = session
+```
+
+### 5. Controllers (`backend/controllers/`)
+- Endpoints da API (FastAPI routers)
+- Tags para organização (usar `RoutesTagEnum`)
+- Validação via DTOs
+- Tratamento de erros com HTTPException
+- Registrar em `main.py`
+
+```python
+from fastapi import APIRouter, Depends, HTTPException, status
+from services.example_service import ExampleService
+from dtos.example_dto import ExampleCreate, ExampleResponse
+from enums.RoutesTagEnum import RoutesTagEnum
+
+example_controller = APIRouter(
+    prefix="/examples",
+    tags=[RoutesTagEnum.EXAMPLES.value]
+)
+
+@example_controller.get("", response_model=list[ExampleResponse])
+def list_examples(service: ExampleService = Depends(ExampleService)):
+    return service.list_all()["items"]
+```
+
+## BaseModel e Soft Delete
+
+- Todos os modelos têm `deleted_at` para soft delete
+- Repositories filtram automaticamente registros deletados
+- Usar `hard_delete()` apenas quando necessário
+
+## Migrações (Alembic)
+
+- Comandos: `pipenv run migrate-create "descrição"`
+- Aplicar: `pipenv run migrate-apply`
+- Sempre testar migrações antes de aplicar
+- Migrações em `database/alembic/versions/`
+
+## Variáveis de Ambiente
+
+- Usar `libraries/env.py` (classe `Env`)
+- Nunca hardcodar valores sensíveis
+- Documentar novas variáveis no `Env`
+
+## Type Hints
+
+- Sempre usar type hints em Python
+- Usar `|` para union types (Python 3.10+)
+- Tipar retornos de funções
+- Tipar parâmetros
+
+## Boas Práticas
+
+1. Seguir PEP 8
+2. Usar Dependency Injection
+3. Validar entrada com DTOs
+4. Tratar erros adequadamente
+5. Logging para debug (quando necessário)
+6. Testes unitários e de integração

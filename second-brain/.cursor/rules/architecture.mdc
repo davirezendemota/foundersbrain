@@ -1,0 +1,47 @@
+---
+title: Arquitetura do Projeto
+description: Visão geral da arquitetura full-stack
+tags: [architecture, overview]
+---
+
+# Arquitetura do Projeto
+
+Este é um template full-stack moderno com as seguintes tecnologias:
+
+## Stack Tecnológico
+
+### Frontend
+- **Framework**: Next.js 15 (App Router)
+- **UI Library**: React 19
+- **Linguagem**: TypeScript 5.x
+- **Estilização**: Tailwind CSS 4
+- **Ícones**: Font Awesome 7.1.0
+- **Gráficos**: Recharts 3.5.0
+
+### Backend
+- **Framework**: FastAPI
+- **Linguagem**: Python 3.12
+- **ORM**: SQLModel (SQLAlchemy + Pydantic)
+- **Migrações**: Alembic
+- **Gerenciador de Dependências**: Pipenv
+- **Banco de Dados**: PostgreSQL 18
+
+### Infraestrutura
+- **Containerização**: Docker + Docker Compose
+- **Desenvolvimento**: Hot reload configurado
+- **Produção**: Multi-stage builds otimizados
+
+## Padrões Arquiteturais
+
+### Backend - Arquitetura em Camadas
+1. **Controllers**: Endpoints da API (FastAPI routers)
+2. **Services**: Lógica de negócio isolada
+3. **Repositories**: Acesso a dados (Repository Pattern)
+4. **Models**: Modelos de dados (SQLModel)
+5. **DTOs**: Validação de entrada/saída (Pydantic)
+
+### Frontend - App Router
+- Server Components por padrão
+- Client Components apenas quando necessário
+- Componentes reutilizáveis em `app/components/`
+- Rotas dinâmicas suportadas

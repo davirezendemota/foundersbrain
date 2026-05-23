@@ -1,0 +1,91 @@
+---
+title: Padrões de Código
+description: Padrões e convenções gerais de código
+tags: [standards, best-practices, code-quality]
+---
+
+# Padrões de Código
+
+## Geral
+
+### TypeScript (Frontend)
+- Sempre usar tipagem explícita
+- Evitar `any`, preferir `unknown`
+- Interfaces para props e tipos complexos
+- Tipar respostas da API
+
+### Python (Backend)
+- Sempre usar type hints
+- Seguir PEP 8
+- Usar `|` para union types (Python 3.10+)
+- Docstrings para funções complexas
+
+## Estrutura de Diretórios
+
+### Quando Criar Novos Arquivos
+
+1. **Novo Modelo**:
+   - Criar em `backend/models/`
+   - Adicionar ao `__init__.py`
+   - Herdar de `BaseModel`
+
+2. **Novo Controller**:
+   - Criar em `backend/controllers/`
+   - Registrar em `main.py`
+   - Usar `RoutesTagEnum` para tags
+
+3. **Nova Página**:
+   - Criar em `frontend/app/` seguindo App Router
+   - Server Component por padrão
+   - Client Component apenas se necessário
+
+4. **Novo Componente**:
+   - Criar em `frontend/app/components/` se reutilizável
+   - Documentar props com TypeScript
+
+## Segurança
+
+1. **Credenciais**:
+   - Nunca commitar `.env` ou credenciais
+   - Usar variáveis de ambiente
+   - Validar entrada no backend
+
+2. **Validação**:
+   - Backend: DTOs com Pydantic
+   - Frontend: TypeScript + validação de formulários
+
+3. **Headers de Segurança**:
+   - Configurados no `next.config.ts`
+   - CORS adequadamente configurado
+
+## Performance
+
+1. **Frontend**:
+   - Server Components quando possível
+   - Lazy loading de componentes pesados
+   - Otimizar imagens (Next.js Image)
+
+2. **Backend**:
+   - Otimizar queries do banco
+   - Usar índices quando necessário
+   - Paginação em listagens
+
+## Testes
+
+1. **Unitários**: Testar funções isoladas
+2. **Integração**: Testar fluxos completos
+3. **Migrações**: Sempre testar antes de aplicar
+
+## Documentação
+
+1. **Código Complexo**: Adicionar comentários
+2. **Funções**: Docstrings em Python
+3. **Componentes**: Documentar props com TypeScript
+4. **APIs**: Documentação automática do FastAPI
+
+## Git
+
+1. **Commits**: Mensagens descritivas
+2. **Branches**: Nomes claros
+3. **`.gitignore`**: Manter atualizado
+4. **Nunca commitar**: `.env`, `node_modules`, `__pycache__`

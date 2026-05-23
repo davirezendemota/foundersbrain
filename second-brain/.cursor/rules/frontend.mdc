@@ -1,0 +1,85 @@
+---
+title: Regras do Frontend
+description: Padrões e convenções para desenvolvimento frontend
+tags: [frontend, nextjs, react, typescript]
+paths: ["frontend/**"]
+---
+
+# Regras do Frontend (Next.js 15)
+
+## Estrutura de Arquivos
+
+1. **App Router**: Usar sempre o App Router do Next.js 15
+2. **Componentes**: Reutilizáveis em `app/components/`
+3. **Páginas**: Criar em `app/` seguindo a estrutura de rotas
+4. **Client Components**: Apenas quando necessário (`'use client'`)
+
+## TypeScript
+
+- Sempre usar tipagem explícita
+- Interfaces para props de componentes
+- Tipos para respostas da API
+- Evitar `any`, preferir `unknown` quando necessário
+
+## Estilização
+
+- **Tailwind CSS 4**: Usar classes utilitárias
+- **Variáveis CSS**: Definidas em `globals.css`
+- **Paleta de Cores**:
+  - Background: `#FAFAFA`
+  - Texto primário: `#242424`
+  - Texto secundário: `#6B6B6B`
+  - Accent: `#1A8917` (verde)
+  - Bordas: `#E6E6E6`
+
+## Componentes
+
+### Server Components (Padrão)
+```tsx
+// app/page.tsx - Server Component
+export default function Page() {
+  return <div>Conteúdo</div>;
+}
+```
+
+### Client Components
+```tsx
+// app/components/Interactive.tsx
+'use client';
+
+import { useState } from 'react';
+
+export default function Interactive() {
+  const [state, setState] = useState();
+  // ...
+}
+```
+
+## Integração com Backend
+
+- **URL da API**: Usar `process.env.NEXT_PUBLIC_BACKEND_URL`
+- **Requisições**: Fetch API nativo
+- **Tratamento de Erros**: Sempre implementar
+- **Loading States**: Sempre mostrar estados de carregamento
+- **Tipagem**: Tipar todas as respostas da API
+
+### Exemplo de Requisição
+```tsx
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:10001';
+
+useEffect(() => {
+  fetch(`${BACKEND_URL}/examples`)
+    .then(res => res.json())
+    .then(data => setData(data))
+    .catch(err => setError(err.message));
+}, []);
+```
+
+## Boas Práticas
+
+1. Preferir Server Components quando possível
+2. Usar lazy loading para componentes pesados
+3. Otimizar imagens com Next.js Image component
+4. Implementar tratamento de erros consistente
+5. Sempre mostrar estados de loading
+6. Validar dados no frontend (TypeScript)

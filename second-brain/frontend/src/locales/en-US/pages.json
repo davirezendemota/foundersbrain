@@ -1,0 +1,56 @@
+{
+  "home": {
+    "title": "The Solo Founder"
+  },
+  "workspace": {
+    "presence": {
+      "senseMemory": "Memory",
+      "senseFiles": "Files",
+      "senseWeb": "Web"
+    },
+    "controls": {
+      "soundOn": "Enable AI voice",
+      "soundOff": "Mute AI voice",
+      "historyOn": "Show AI speech history",
+      "historyOff": "Hide AI speech history",
+      "micOn": "Enable microphone",
+      "micOff": "Mute microphone"
+    },
+    "caption": {
+      "label": "AI speech caption",
+      "historyLabel": "Previous AI speech history",
+      "historyEmpty": "There are no previous captions yet.",
+      "error": "I could not reach the model right now. Check that the backend is online and the OpenAI key is configured.",
+      "voiceUnavailable": "Your browser did not provide speech recognition in this session. Use the text composer or try a browser with Web Speech API.",
+      "voiceError": "I could not capture your voice right now. Check microphone permission and try again.",
+      "next": "Next",
+      "replyPageOne": "I received your request. I will keep speech on the left and place useful artifacts on the worktable to the right.",
+      "replyPageTwo": "In the final product, this flow will connect to real streaming and honest backend events."
+    },
+    "chat": {
+      "you": "You",
+      "now": "Now"
+    },
+    "artifacts": {
+      "listen": "Hear explanation",
+      "download": "Download file",
+      "generatedTitle": "Sample artifact",
+      "generatedBody": "This card represents where generated code, links, files, tables, and charts will appear.",
+      "generatedMeta": "AI generated link"
+    },
+    "composer": {
+      "placeholder": "Write a decision, question, or request. Enter sends; Shift+Enter adds a line.",
+      "attach": "Attach",
+      "hint": "Use @ to mention AI artifacts.",
+      "send": "Send"
+    }
+  },
+  "contentLibrary": {
+    "placeholder": "Paste a post link (YouTube, TikTok, Instagram, X...)",
+    "add": "Add",
+    "empty": "No links saved yet. Paste a URL above to get started.",
+    "fetchError": "Could not load saved links.",
+    "addError": "Could not add the link. Check the URL and try again.",
+    "deleteError": "Could not remove the item."
+  }
+}

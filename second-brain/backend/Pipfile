@@ -1,0 +1,38 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+fastapi = "*"
+uvicorn = {extras = ["standard"], version = "*"}
+sqlmodel = "*"
+alembic = "*"
+psycopg2-binary = "*"
+pydantic-settings = "*"
+email-validator = "*"
+python-dotenv = "*"
+pyjwt = "*"
+passlib = "*"
+openai = "*"
+httpx = "*"
+beautifulsoup4 = "*"
+lxml = "*"
+
+[dev-packages]
+black = "*"
+isort = "*"
+flake8 = "*"
+pytest = "*"
+
+[scripts]
+dev = "uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
+migrate-apply = "alembic upgrade head"
+migrate-create = "alembic revision --autogenerate -m"
+migrate-downgrade = "alembic downgrade -1"
+format = "black . && isort ."
+lint = "flake8 ."
+
+[requires]
+python_version = "3.12"
+

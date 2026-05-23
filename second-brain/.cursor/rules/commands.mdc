@@ -1,0 +1,97 @@
+---
+title: Comandos Úteis
+description: Comandos frequentes para desenvolvimento
+tags: [commands, cli, development]
+---
+
+# Comandos Úteis
+
+## Frontend
+
+```bash
+# Desenvolvimento
+npm run dev
+
+# Build de produção
+npm run build
+
+# Iniciar produção
+npm run start
+
+# Linter
+npm run lint
+```
+
+## Backend
+
+```bash
+# Instalar dependências
+pipenv install
+
+# Desenvolvimento
+pipenv run dev
+
+# Criar migração
+pipenv run migrate-create "descrição da migração"
+
+# Aplicar migrações
+pipenv run migrate-apply
+
+# Reverter última migração
+pipenv run migrate-downgrade
+
+# Formatar código
+pipenv run format
+
+# Linter
+pipenv run lint
+```
+
+## Docker
+
+```bash
+# Iniciar todos os serviços
+docker compose up -d
+
+# Parar serviços
+docker compose down
+
+# Ver logs
+docker compose logs -f [service]
+
+# Rebuild imagens
+docker compose build --no-cache
+
+# Executar comando no container
+docker compose exec backend [comando]
+docker compose exec frontend [comando]
+```
+
+## Banco de Dados
+
+```bash
+# Conectar ao PostgreSQL
+docker compose exec postgres psql -U postgres -d project_db
+
+# Backup
+docker compose exec postgres pg_dump -U postgres project_db > backup.sql
+
+# Restore
+docker compose exec -T postgres psql -U postgres project_db < backup.sql
+```
+
+## Desenvolvimento
+
+```bash
+# Ver logs de todos os serviços
+docker compose logs -f
+
+# Reiniciar um serviço
+docker compose restart [service]
+
+# Ver status dos serviços
+docker compose ps
+
+# Limpar volumes (CUIDADO: apaga dados)
+docker compose down -v
+```

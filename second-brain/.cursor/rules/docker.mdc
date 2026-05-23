@@ -1,0 +1,88 @@
+---
+title: Regras do Docker
+description: Configuração e uso do Docker no projeto
+tags: [docker, docker-compose, infrastructure]
+paths: ["compose.yaml", "**/Dockerfile", "**/*.dockerfile"]
+---
+
+# Regras do Docker
+
+## Estrutura
+
+### Frontend Dockerfile
+- **Multi-stage build**: base, deps, builder, runner
+- **Desenvolvimento**: Target `deps` (hot reload)
+- **Produção**: Target `runner` (otimizado)
+- **Build arg**: `NEXT_PUBLIC_BACKEND_URL`
+
+### Backend Dockerfiles
+- **Desenvolvimento**: `Dockerfile` (hot reload)
+- **Produção**: `production.Dockerfile` (otimizado)
+- **Entrypoint**: Executa migrações automaticamente
+
+### Docker Compose
+- **Serviços**: frontend, backend, postgres
+- **Healthchecks**: Configurados para todos os serviços
+- **Volumes**: Hot reload em desenvolvimento
+- **Portas**:
+  - Frontend: 10000:3000
+  - Backend: 10001:8000
+  - PostgreSQL: 10002:5432
+
+## Comandos
+
+### Desenvolvimento
+```bash
+# Iniciar todos os serviços
+docker compose up -d
+
+# Ver logs
+docker compose logs -f [service]
+
+# Parar serviços
+docker compose down
+```
+
+### Produção
+```bash
+# Build frontend
+docker build -f frontend/Dockerfile \
+  --target runner \
+  --build-arg NEXT_PUBLIC_BACKEND_URL=https://api.example.com \
+  -t frontend:latest \
+  ./frontend
+
+# Build backend
+docker build -f backend/production.Dockerfile \
+  -t backend:latest \
+  ./backend
+```
+
+## Variáveis de Ambiente
+
+Criar arquivo `.env` na raiz:
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=project_db
+ENVIRONMENT=development
+BACKEND_API_ROOT_PATH=
+NEXT_PUBLIC_BACKEND_URL=http://localhost:10001
+```
+
+## Healthchecks
+
+- **Backend**: Verifica porta 8000
+- **PostgreSQL**: `pg_isready`
+- **Dependências**: Serviços aguardam healthchecks
+
+## Volumes
+
+### Desenvolvimento
+- Código montado para hot reload
+- `node_modules` e `.next` em volumes nomeados
+- Dados do PostgreSQL em `./postgres`
+
+### Produção
+- Sem volumes de código (tudo na imagem)
+- Apenas volumes para dados persistentes
