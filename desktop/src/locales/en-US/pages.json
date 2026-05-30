@@ -16,7 +16,10 @@
     "apiKeyPlaceholder": "Paste your key here",
     "apiKeySave": "Save and unlock chat",
     "apiKeySaving": "Saving...",
-    "chatBlockedPlaceholder": "Configure the vault API key to send messages"
+    "chatBlockedPlaceholder": "Configure the vault API key to send messages",
+    "credentialIncompatible": "Credentials incompatible with this vault. Save the API key again to overwrite.",
+    "credentialCorrupted": "Credentials file corrupted. Save the API key again.",
+    "credentialErrorTitle": "Credential issue"
   },
   "workspace": {
     "presence": {

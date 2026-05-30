@@ -125,11 +125,56 @@ pub fn credentials_status(vault_path: &Path) -> Result<CredentialsStatus, String
         });
     }
 
-    let credentials = load_api_credentials(vault_path)?;
-    Ok(CredentialsStatus {
-        configured: credentials.is_some(),
-        provider: credentials.map(|value| value.provider),
-    })
+    match load_api_credentials(vault_path) {
+        Ok(Some(creds)) => Ok(CredentialsStatus {
+            configured: true,
+            provider: Some(creds.provider),
+        }),
+        // Decrypt failed — file exists but can't be read. Treat as "not configured"
+        // so the user can re-save credentials through the UI.
+        Ok(None) | Err(_) => Ok(CredentialsStatus {
+            configured: false,
+            provider: None,
+        }),
+    }
+}
+
+/// Checks whether the existing credentials file can be decrypted with the current
+/// keychain key. Returns `Ok(())` if valid, or a user-facing error string explaining
+/// what's wrong (incompatible vault key, corrupted file, etc.).
+pub fn check_stale_credentials(vault_path: &Path) -> Result<(), String> {
+    let path = credentials_path(vault_path);
+    if !path.is_file() {
+        return Ok(());
+    }
+
+    let payload = match fs::read(&path) {
+        Ok(data) => data,
+        Err(_) => return Ok(()),
+    };
+
+    if payload.len() < FILE_MAGIC.len() || &payload[..FILE_MAGIC.len()] != FILE_MAGIC {
+        return Err(
+            "Arquivo de credenciais corrompido. Salve a API key novamente.".into(),
+        );
+    }
+
+    let key = match encryption_key(vault_path) {
+        Ok(k) => k,
+        Err(_) => {
+            return Err(
+                "Credenciais incompatíveis com este vault. Salve a API key novamente."
+                    .into(),
+            );
+        }
+    };
+
+    match decrypt_payload(&key, &payload) {
+        Ok(_) => Ok(()),
+        Err(_) => Err(
+            "Credenciais incompatíveis com este vault. Salve a API key novamente.".into(),
+        ),
+    }
 }
 
 pub fn load_api_credentials(vault_path: &Path) -> Result<Option<ApiCredentials>, String> {
