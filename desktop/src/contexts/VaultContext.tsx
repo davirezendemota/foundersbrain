@@ -15,6 +15,7 @@ interface VaultContextValue {
   vaultPath: string | null;
   vaultName: string | null;
   credentialsStatus: CredentialsStatus;
+  credentialError: string | null;
   isVaultReady: boolean;
   isChatReady: boolean;
   isLoading: boolean;
@@ -35,18 +36,26 @@ export function VaultProvider({ children }: { children: ReactNode }) {
   const [credentialsStatus, setCredentialsStatus] = useState<CredentialsStatus>({
     configured: false,
   });
+  const [credentialError, setCredentialError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const refreshCredentialsStatus = useCallback(async () => {
     if (!vaultPath) {
       setCredentialsStatus({ configured: false });
+      setCredentialError(null);
       return;
     }
 
-    const status = await invoke<CredentialsStatus>('get_vault_credentials_status', {
-      vaultPath,
-    });
-    setCredentialsStatus(status);
+    try {
+      const status = await invoke<CredentialsStatus>('get_vault_credentials_status', {
+        vaultPath,
+      });
+      setCredentialsStatus(status);
+      setCredentialError(null);
+    } catch (error) {
+      setCredentialsStatus({ configured: false });
+      setCredentialError(String(error));
+    }
   }, [vaultPath]);
 
   const selectVaultFolder = useCallback(async () => {
@@ -69,6 +78,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
         apiKey,
       });
       setCredentialsStatus(status);
+      setCredentialError(null);
     },
     [vaultPath],
   );
@@ -103,6 +113,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
       vaultPath,
       vaultName: vaultPath ? vaultLabel(vaultPath) : null,
       credentialsStatus,
+      credentialError,
       isVaultReady: Boolean(vaultPath),
       isChatReady: Boolean(vaultPath && credentialsStatus.configured),
       isLoading,
@@ -112,6 +123,7 @@ export function VaultProvider({ children }: { children: ReactNode }) {
     }),
     [
       credentialsStatus,
+      credentialError,
       isLoading,
       refreshCredentialsStatus,
       saveCredentials,

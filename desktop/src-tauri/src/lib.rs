@@ -4,7 +4,9 @@ mod settings;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
-use credentials::{load_api_credentials, save_api_credentials, ApiCredentials, CredentialsStatus};
+use credentials::{
+    load_api_credentials, save_api_credentials, ApiCredentials, CredentialsStatus,
+};
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use settings::{load_settings, save_settings, AppSettings};
@@ -167,13 +169,22 @@ fn save_vault_credentials(
     save_api_credentials(
         &path,
         ApiCredentials {
-            provider,
+            provider: provider.clone(),
             api_key,
             model: Some(default_model.into()),
         },
     )?;
 
-    credentials::credentials_status(&path)
+    Ok(CredentialsStatus {
+        configured: true,
+        provider: Some(provider),
+    })
+}
+
+#[tauri::command]
+fn check_stale_credentials(vault_path: String) -> Result<(), String> {
+    let path = vault_path_from_string(&vault_path)?;
+    credentials::check_stale_credentials(&path)
 }
 
 #[tauri::command]
@@ -324,6 +335,7 @@ pub fn run() {
             pick_vault_folder,
             get_vault_credentials_status,
             save_vault_credentials,
+            check_stale_credentials,
             chat,
             speech,
             fetch_content_metadata,

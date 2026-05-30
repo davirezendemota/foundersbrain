@@ -6,7 +6,7 @@ import type { AiProvider } from '@/types/vault';
 
 export default function ApiKeySetup() {
   const { t } = useTranslation();
-  const { saveCredentials } = useVault();
+  const { credentialError, saveCredentials } = useVault();
   const [provider, setProvider] = useState<AiProvider>('openai');
   const [apiKey, setApiKey] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -32,6 +32,24 @@ export default function ApiKeySetup() {
       <div className="api-key-setup-card genui-card">
         <h2 className="api-key-setup-title">{t('vault.apiKeyTitle')}</h2>
         <p className="api-key-setup-description">{t('vault.apiKeyDescription')}</p>
+
+        {credentialError && (
+          <div
+            className="api-key-setup-warning"
+            style={{
+              background: 'var(--warning-bg, #fff3cd)',
+              border: '1px solid #ffc107',
+              borderRadius: 8,
+              padding: '10px 14px',
+              marginBottom: 16,
+              fontSize: 13,
+              color: '#856404',
+              lineHeight: '1.4',
+            }}
+          >
+            ⚠️ {credentialError}
+          </div>
+        )}
 
         <form className="api-key-setup-form" onSubmit={(event) => void handleSubmit(event)}>
           <label className="genui-label" htmlFor="api-provider">
